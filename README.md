@@ -1,4 +1,4 @@
-# ERC-20 Kitty Token Contract
+# ERC-20 Hello Token Contract
 
 This Solidity program is a demonstration of ERC-20 Token with support of transfer, minting and burning of coins.
 
