@@ -44,9 +44,7 @@ transferTo(address recipient, uint256 amount);
 ### Executing Program
 To run this program, you can use Remix, an online Solidity IDE. To get started, go to the Remix website at [Remix Ethereum](https://remix.ethereum.org/).
 
-
-solidity
-
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
@@ -79,7 +77,7 @@ contract myToken is ERC20 {
         transfer(recipient, amount);
     }
 }
-
+```
 
 ## Help
 To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.18" (or another compatible version), and then click on the "Compile Token.sol" button.
