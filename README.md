@@ -55,7 +55,7 @@ contract myToken is ERC20 {
 
     address owner;
 
-    constructor(uint _initialSupply) ERC20("Kitty", "KTY") {
+    constructor(uint _initialSupply) ERC20("Hello", "Hlo") {
         owner = msg.sender;
         _mint(owner, _initialSupply);
     }
