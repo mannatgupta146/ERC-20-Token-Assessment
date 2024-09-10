@@ -6,6 +6,11 @@ This Solidity program is a demonstration of ERC-20 Token with support of transfe
 
 This Solidity program defines an ERC20 token with essential functionalities. It includes functions for minting, where only the founder of the token can create new tokens, and burning, which allows any holder to destroy their tokens. Additionally, the contract supports standard ERC20 transfer and allowance operations, enabling tokens to be transferred between any accounts on the blockchain. It imports the IERC20 interface from [OpenZeppelin](https://www.openzeppelin.com/)
 
+## Video Tutorial
+
+For a detailed walkthrough of the code and how the project works, check out the [Loom video](https://www.loom.com/share/1db86fba3ca844b3bdc53fc089a479e5?sid=f72380ad-b293-4832-8c4c-4c2ef1d4dd47).
+
+
 # Contract Overview
 The Token contract is a basic implementation of an ERC20-like token. It features the following components:
 
@@ -51,31 +56,86 @@ pragma solidity ^0.8.26;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract myToken is ERC20 {
+    string public name;
+    string public symbol;
+    address public founder;
+    uint256 public tokenTotalSupply;
+    mapping(address=>uint256) balances;
+    mapping(address => mapping(address => uint256)) allowances;
 
-    address owner;
-
-    constructor(uint _initialSupply) ERC20("Hello", "Hlo") {
-        owner = msg.sender;
-        _mint(owner, _initialSupply);
+    constructor(string memory _name, string memory _symbol, uint _tokenTotalSupply) {
+        name = _name;
+        symbol = _symbol;
+        founder = msg.sender;
+        tokenTotalSupply = _tokenTotalSupply;
+        balances[founder]= tokenTotalSupply;
     }
 
-    modifier ownerOnly{
-        require(msg.sender==owner, "Not authorized");
-        _;
+    function totalSupply() public view override returns (uint256) {
+        return tokenTotalSupply;
     }
 
-    function mint(address to, uint256 amount) public ownerOnly {
-        _mint(to, amount);
+    function balanceOf(address account) public view override returns (uint256) {
+        return balances[account];
     }
 
-    function burn(uint256 amount) public {
-        _burn(msg.sender, amount);
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        require(amount>0, "Invalid transfer amount");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+
+        balances[msg.sender] -= amount;
+        balances[recipient] += amount;
+
+        emit Transfer(msg.sender, recipient, amount);
+        return true;
     }
-    
-    function transferTo(address recipient, uint256 amount) public {
-        require(balanceOf(msg.sender) >= amount, "Insufficient balance");
-        transfer(recipient, amount);
+
+    function allowance(address owner, address spender) public view override returns (uint256) {
+        return allowances[owner][spender];
     }
+
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        require(amount>0, "Invalid allowance amount");
+
+        allowances[msg.sender][spender] = amount;
+        
+        emit Approval(msg.sender, spender, amount);
+        return true;
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
+        require(amount>0, "Invalid allowance amount");
+        require(balances[sender] >= amount, "Insufficient supply");
+        require(amount<=allowances[sender][recipient], "This amount is not allowed");
+
+        allowances[sender][recipient] -= amount;
+        balances[sender] -= amount;
+        balances[recipient] +=amount;
+
+        emit Transfer(sender, recipient, amount);
+        return true;
+    }
+
+    function mint(address recipient, uint256 amount) public returns(bool) {
+        require(msg.sender == founder, "Unauthorized");
+
+        balances[recipient] += amount;
+        tokenTotalSupply += amount;
+
+        emit Transfer(address(0), recipient, amount);
+        return true;
+    }
+
+    function burn(uint256 amount) public returns(bool) {
+        require(balances[msg.sender]>=amount, "Insufficient balance");
+
+        balances[msg.sender] -= amount;
+        tokenTotalSupply -= amount;
+
+        emit Transfer(msg.sender, address(0), amount);
+        return true;
+    }
+
 }
 ```
 
